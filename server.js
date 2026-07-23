@@ -2,38 +2,64 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
-// Middleware to understand JSON data sent from the frontend
 app.use(express.json());
 
-// Temporary in-memory storage for blog posts (Day 6 will use this properly)
+// In-memory storage for blog posts
 let blogs = [];
+let nextId = 1; // simple counter to give each blog a unique ID
 
-// GET route - homepage test route
+// Home route (from Day 1)
 app.get('/', (req, res) => {
   res.send('Hello World! Server is running.');
 });
 
-// GET route - fetch all blogs
+// GET all blogs
 app.get('/api/blogs', (req, res) => {
   res.json(blogs);
 });
 
-// POST route - add a new blog (basic version for now)
+// GET a single blog by ID
+app.get('/api/blogs/:id', (req, res) => {
+  const blog = blogs.find(b => b.id === parseInt(req.params.id));
+
+  if (!blog) {
+    return res.status(404).json({ error: 'Blog not found.' });
+  }
+
+  res.json(blog);
+});
+
+// POST - Add a new blog
 app.post('/api/blogs', (req, res) => {
   const { title, content } = req.body;
 
+  // Validation
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required.' });
   }
 
+  if (title.trim().length < 3) {
+    return res.status(400).json({ error: 'Title must be at least 3 characters.' });
+  }
+
+  if (content.trim().length < 10) {
+    return res.status(400).json({ error: 'Content must be at least 10 characters.' });
+  }
+
+  // Create the new blog object
   const newBlog = {
-    id: Date.now(),
-    title,
-    content
+    id: nextId++,
+    title: title.trim(),
+    content: content.trim(),
+    createdAt: new Date().toISOString()
   };
 
   blogs.push(newBlog);
-  res.status(201).json(newBlog);
+
+  res.status(201).json({
+    message: 'Blog post created successfully!',
+    blog: newBlog
+  });
 });
 
 app.listen(PORT, () => {
