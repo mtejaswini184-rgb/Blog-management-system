@@ -1,9 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
-
 // In-memory storage for blog posts
 let blogs = [];
 let nextId = 1; // simple counter to give each blog a unique ID
