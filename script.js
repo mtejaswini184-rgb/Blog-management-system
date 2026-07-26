@@ -1,9 +1,7 @@
-// Wait for the page to fully load before running this code
 document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('blog-form');
 
-  // Only run this if we're on the Add Blog page (form exists)
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -40,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Live character counter for content field
   const contentField = document.getElementById('content');
   if (contentField) {
     contentField.addEventListener('input', () => {
@@ -48,16 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ✅ Call loadBlogs() directly here — no need to wait for another event
   loadBlogs();
 
 });
 
-// ✅ loadBlogs is now OUTSIDE the DOMContentLoaded block, at the top level
 async function loadBlogs() {
   const blogList = document.getElementById('blog-list');
 
-  if (!blogList) return; // only run this on index.html
+  if (!blogList) return;
 
   try {
     const response = await fetch('http://localhost:3000/api/blogs');
@@ -79,7 +74,9 @@ async function loadBlogs() {
       card.innerHTML = `
         <h3>${blog.title}</h3>
         <p>${blog.content}</p>
-        <small>Posted on ${date}</small>
+        <small>Posted on ${date}</small><br>
+        <button onclick="editBlog(${blog.id}, '${blog.title.replace(/'/g, "\\'")}', '${blog.content.replace(/'/g, "\\'")}')">Edit</button>
+        <button onclick="deleteBlog(${blog.id})">Delete</button>
       `;
 
       blogList.appendChild(card);
@@ -88,5 +85,62 @@ async function loadBlogs() {
   } catch (error) {
     blogList.innerHTML = '<p>Unable to load blogs. Make sure the server is running.</p>';
     console.error('Error fetching blogs:', error);
+  }
+}
+
+// Handle editing a blog post
+async function editBlog(id, currentTitle, currentContent) {
+  const newTitle = prompt('Edit title:', currentTitle);
+  if (newTitle === null) return;
+
+  const newContent = prompt('Edit content:', currentContent);
+  if (newContent === null) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTitle, content: newContent })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Something went wrong.');
+      return;
+    }
+
+    alert('Blog updated successfully!');
+    loadBlogs();
+
+  } catch (error) {
+    alert('Failed to update blog. Make sure the server is running.');
+    console.error(error);
+  }
+}
+
+// Handle deleting a blog post
+async function deleteBlog(id) {
+  const confirmDelete = confirm('Are you sure you want to delete this blog post?');
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
+      method: 'DELETE'
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Something went wrong.');
+      return;
+    }
+
+    alert('Blog deleted successfully!');
+    loadBlogs();
+
+  } catch (error) {
+    alert('Failed to delete blog. Make sure the server is running.');
+    console.error(error);
   }
 }

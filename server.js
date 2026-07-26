@@ -62,7 +62,55 @@ app.post('/api/blogs', (req, res) => {
     blog: newBlog
   });
 });
+// PUT - Update an existing blog
+app.put('/api/blogs/:id', (req, res) => {
+  const blogId = parseInt(req.params.id);
+  const blog = blogs.find(b => b.id === blogId);
 
+  if (!blog) {
+    return res.status(404).json({ error: 'Blog not found.' });
+  }
+
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Title and content are required.' });
+  }
+
+  if (title.trim().length < 3) {
+    return res.status(400).json({ error: 'Title must be at least 3 characters.' });
+  }
+
+  if (content.trim().length < 10) {
+    return res.status(400).json({ error: 'Content must be at least 10 characters.' });
+  }
+
+  // Update the blog's fields
+  blog.title = title.trim();
+  blog.content = content.trim();
+  blog.updatedAt = new Date().toISOString();
+
+  res.json({
+    message: 'Blog post updated successfully!',
+    blog: blog
+  });
+});
+// DELETE - Remove a blog post
+app.delete('/api/blogs/:id', (req, res) => {
+  const blogId = parseInt(req.params.id);
+  const blogIndex = blogs.findIndex(b => b.id === blogId);
+
+  if (blogIndex === -1) {
+    return res.status(404).json({ error: 'Blog not found.' });
+  }
+
+  const deletedBlog = blogs.splice(blogIndex, 1)[0];
+
+  res.json({
+    message: 'Blog post deleted successfully!',
+    blog: deletedBlog
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
