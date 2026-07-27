@@ -3,12 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('blog-form');
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const title = document.getElementById('title').value.trim();
       const content = document.getElementById('content').value.trim();
 
+      // Validation checks
       if (title === '') {
         alert('Please enter a title for your blog post.');
         return;
@@ -29,15 +30,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      alert('Blog post validated successfully! (We\'ll connect this to the backend soon)');
+      // Send the blog post to the backend
+      try {
+        const response = await fetch('http://localhost:3000/api/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content })
+        });
 
-      console.log('Title:', title);
-      console.log('Content:', content);
+        const data = await response.json();
 
-      form.reset();
+        if (!response.ok) {
+          alert(data.error || 'Something went wrong.');
+          return;
+        }
+
+        alert('Blog post published successfully!');
+        form.reset();
+
+        // Redirect to Home page to see the new post
+        window.location.href = 'index.html';
+
+      } catch (error) {
+        alert('Failed to publish blog. Make sure the server is running.');
+        console.error(error);
+      }
     });
   }
 
+  // Live character counter for content field
   const contentField = document.getElementById('content');
   if (contentField) {
     contentField.addEventListener('input', () => {
@@ -45,14 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Load blogs if we're on the Home page
   loadBlogs();
 
 });
 
+// Fetch and display all blogs on the Home page
 async function loadBlogs() {
   const blogList = document.getElementById('blog-list');
 
-  if (!blogList) return;
+  if (!blogList) return; // only run this on index.html
 
   try {
     const response = await fetch('http://localhost:3000/api/blogs');
@@ -91,7 +114,7 @@ async function loadBlogs() {
 // Handle editing a blog post
 async function editBlog(id, currentTitle, currentContent) {
   const newTitle = prompt('Edit title:', currentTitle);
-  if (newTitle === null) return;
+  if (newTitle === null) return; // user clicked Cancel
 
   const newContent = prompt('Edit content:', currentContent);
   if (newContent === null) return;
@@ -111,7 +134,7 @@ async function editBlog(id, currentTitle, currentContent) {
     }
 
     alert('Blog updated successfully!');
-    loadBlogs();
+    loadBlogs(); // refresh the blog list to show the update
 
   } catch (error) {
     alert('Failed to update blog. Make sure the server is running.');
@@ -137,7 +160,7 @@ async function deleteBlog(id) {
     }
 
     alert('Blog deleted successfully!');
-    loadBlogs();
+    loadBlogs(); // refresh the list
 
   } catch (error) {
     alert('Failed to delete blog. Make sure the server is running.');
