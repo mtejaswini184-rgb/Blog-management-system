@@ -1,5 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
+// Comic POW burst effect on any button click
+  const powWords = ['POW!', 'BAM!', 'ZAP!', 'BOOM!', 'WHAM!'];
 
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      const pow = document.createElement('div');
+      pow.className = 'pow-burst';
+      pow.textContent = powWords[Math.floor(Math.random() * powWords.length)];
+      pow.style.left = `${e.clientX}px`;
+      pow.style.top = `${e.clientY}px`;
+
+      document.body.appendChild(pow);
+
+      // Remove it after the animation finishes
+      setTimeout(() => pow.remove(), 600);
+    }
+  });
   const form = document.getElementById('blog-form');
 
   if (form) {
