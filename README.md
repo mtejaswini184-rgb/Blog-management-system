@@ -19,3 +19,5 @@ A simple full-stack blog management system built during my Full Stack Developmen
 - **Tools:** Git, GitHub, Postman, VS Code
 
 ## 📁 Project Structure
+DEMONSTRATION OF WEBISTE WROKING:https://go.screenpal.com/watch/cOiUovnv14I
+                                :https://go.screenpal.com/watch/cOiUo4nv14N
