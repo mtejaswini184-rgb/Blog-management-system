@@ -244,3 +244,33 @@ footer {
     opacity: 0;
   }
 }
+/* Responsive design for mobile devices */
+@media (max-width: 600px) {
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+  }
+
+  nav ul {
+    margin-top: 10px;
+    gap: 15px;
+  }
+
+  main {
+    padding: 0 15px;
+  }
+
+  main h1 {
+    font-size: 24px;
+  }
+
+  .blog-card {
+    padding: 15px;
+  }
+
+  button {
+    width: 100%;
+    margin-right: 0;
+  }
+}
